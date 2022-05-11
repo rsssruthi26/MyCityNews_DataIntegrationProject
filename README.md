@@ -1,0 +1,2 @@
+# MyCityNews_DataIntegrationProject
+Major news websites like cnn.com/nbcnews.com etc., show news from all over the world on their homepage. The UI navigation in their websites to read local news per city is not user friendly.   As many users would like to prefer to read latest updates/news in the current living city or any selected city along with news around the world.  MyCityNews is a website that focuses on showing more information about the current living city or selected city.
