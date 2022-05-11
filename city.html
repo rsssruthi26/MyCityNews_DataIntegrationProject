@@ -1,0 +1,1449 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+	<title>MyCityNews</title>
+    <style>
+        body {
+            background-color: linen;
+        }
+
+        .main-content {
+            margin-top: 50px;
+        }
+    </style>
+    <script>
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        var cityName = params.city;
+
+        $(document).ready(function() {
+            console.log( "ready!" );
+            fetchWeatherData();
+            fetchNewsData();
+            fetchNearByParksData();
+        });
+
+        var dummyNearByData = {
+            "results": [
+                {
+                    "id": "74C8907E82FF10B8848A4A8F4CE11CA3",
+                    "name": "Union Park",
+                    "address": "Akron, OH 44304, USA",
+                    "location": {
+                        "lat": 41.080022,
+                        "lng": -81.51076
+                    },
+                    "types": [
+                        "building",
+                        "park"
+                    ],
+                    "distance": 202
+                },
+                {
+                    "id": "DBD85CF7D74D61171821A3EB6E034BA4",
+                    "name": "The Staiger Garden",
+                    "address": "6736769, Akron, OH 44308, USA",
+                    "location": {
+                        "lat": 41.079435,
+                        "lng": -81.511394
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 259
+                },
+                {
+                    "id": "BD369040A1A401DB703EDCEE46373076",
+                    "name": "Grace Park",
+                    "address": "Akron, OH 44304, USA",
+                    "phone_number": "+13303752804",
+                    "website": "http://www.akronohio.gov/cms/recreation/",
+                    "location": {
+                        "lat": 41.08474,
+                        "lng": -81.509226
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 381
+                },
+                {
+                    "id": "B93A119F455CA702CE356FC5ED66BBA6",
+                    "name": "Commerce Park",
+                    "address": "11 S Main St, Akron, OH 44308, USA",
+                    "website": "http://downtownakron.com/go/commerce-park",
+                    "location": {
+                        "lat": 41.084533,
+                        "lng": -81.516685
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 537
+                },
+                {
+                    "id": "1FD6CB0672E7A8FB503850E37C5139AD",
+                    "name": "Hardesty park",
+                    "address": "Akron, OH 44308, USA",
+                    "location": {
+                        "lat": 41.081428,
+                        "lng": -81.518988
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 633
+                },
+                {
+                    "id": "A45879EF17E5A8F4DECA0FD396D9BC8F",
+                    "name": "1 Commerce Center Park",
+                    "address": "6841287, Akron, OH 44308, USA",
+                    "location": {
+                        "lat": 41.085102,
+                        "lng": -81.517967
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 661
+                },
+                {
+                    "id": "8D5F21C83592E1F165AC35C9CF2601AA",
+                    "name": "Coleman Commons",
+                    "address": "Buchtel Hall, Akron, OH 44304, USA",
+                    "location": {
+                        "lat": 41.075334,
+                        "lng": -81.511068
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 716
+                },
+                {
+                    "id": "4E0CE9A77F311FCABC08DD9EEA7AEBC1",
+                    "name": "Lock 4",
+                    "address": "200 S Main St, Akron, OH 44308, USA",
+                    "website": "http://www.downtownakron.com/go/lock-4",
+                    "location": {
+                        "lat": 41.081064,
+                        "lng": -81.519936
+                    },
+                    "types": [
+                        "park",
+                        "tourist_attraction"
+                    ],
+                    "distance": 716
+                },
+                {
+                    "id": "9F88C115B3047CAC152B682A69D6C204",
+                    "name": "Innerbelt National Forest",
+                    "address": "Ohio & Erie Canal Towpath Trail, Akron, OH 44308, USA",
+                    "website": "https://www.innerbeltnationalforest.com/",
+                    "location": {
+                        "lat": 41.082623,
+                        "lng": -81.520711
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 783
+                },
+                {
+                    "id": "DD17A4FAF379C1492272066D82714307",
+                    "name": "Beech Street Trailhead",
+                    "address": "Akron, OH 44308, USA",
+                    "website": "http://www.summitmetroparks.org/ParksAndTrails/TowpathTrail.aspx",
+                    "location": {
+                        "lat": 41.087605,
+                        "lng": -81.518143
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 860
+                },
+                {
+                    "id": "C55F589CFE68E4747B709AC2B4EB13AA",
+                    "name": "Lock 2 Sand Volleyball Courts",
+                    "address": "50 W State St, Akron, OH 44308, USA",
+                    "phone_number": "+13303752850",
+                    "location": {
+                        "lat": 41.07912,
+                        "lng": -81.522395
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 964
+                },
+                {
+                    "id": "1ADFF2B4937A05304D00A51704FD9653",
+                    "name": "Glendale Park",
+                    "address": "Akron, OH 44302, USA",
+                    "location": {
+                        "lat": 41.085084,
+                        "lng": -81.522274
+                    },
+                    "types": [
+                        "building",
+                        "park"
+                    ],
+                    "distance": 981
+                },
+                {
+                    "id": "6BF66E06748782646F65516442948E83",
+                    "name": "Lock 2 Park",
+                    "address": "Downtown,, Akron, OH 44308, USA",
+                    "phone_number": "+13303747676",
+                    "website": "http://www.downtownakron.com/go/lock-2",
+                    "location": {
+                        "lat": 41.078875,
+                        "lng": -81.523316
+                    },
+                    "types": [
+                        "park",
+                        "tourist_attraction"
+                    ],
+                    "distance": 1046
+                },
+                {
+                    "id": "56C3F1EB99988397720B1D8601F5E414",
+                    "name": "Adam's Park",
+                    "address": "N Adams St, Akron, OH 44304, USA",
+                    "location": {
+                        "lat": 41.085547,
+                        "lng": -81.499883
+                    },
+                    "types": [
+                        "building",
+                        "park"
+                    ],
+                    "distance": 1058
+                },
+                {
+                    "id": "6548E11E0A1EB8A89DC6C96346502B14",
+                    "name": "Cascade Park",
+                    "address": "57 W North St, Akron, OH 44308, USA",
+                    "phone_number": "+13303745625",
+                    "location": {
+                        "lat": 41.090481,
+                        "lng": -81.5173
+                    },
+                    "types": [
+                        "park",
+                        "tourist_attraction"
+                    ],
+                    "distance": 1088
+                },
+                {
+                    "id": "CB2E1FF6A29AF86DB60358735B90DCF6",
+                    "name": "Ohio and Erie Canalway Heritage Area",
+                    "address": "Richard Howe House, 47 W Exchange St, Akron, OH 44308, USA",
+                    "phone_number": "+13303745657",
+                    "website": "https://www.ohioanderiecanalway.com/",
+                    "location": {
+                        "lat": 41.077505,
+                        "lng": -81.523819
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 1141
+                },
+                {
+                    "id": "99D78B74F04FFA53F54B09A2F8CE38C3",
+                    "name": "UA Logo",
+                    "address": "374-380 E Exchange St, Akron, OH 44304, USA",
+                    "location": {
+                        "lat": 41.071468,
+                        "lng": -81.510033
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 1152
+                },
+                {
+                    "id": "F416D851AE1C90436A8E82DF2CCFDAE5",
+                    "name": "Elizabeth Park",
+                    "address": "40 E Lods St, Akron, OH 44304, USA",
+                    "phone_number": "+13303752850",
+                    "website": "https://www.akronohio.gov/cms/recreation/index.html",
+                    "location": {
+                        "lat": 41.091956,
+                        "lng": -81.513944
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 1154
+                },
+                {
+                    "id": "3988ECDBB2C6C8B150FCBB649180ACE2",
+                    "name": "Wills Lot",
+                    "address": "154 Wills Ave, Akron, OH 44302, USA",
+                    "location": {
+                        "lat": 41.083232,
+                        "lng": -81.525128
+                    },
+                    "types": [
+                        "park"
+                    ],
+                    "distance": 1159
+                },
+                {
+                    "id": "64F99F1D5F4C499AA4C1C4A1A2F7C8A3",
+                    "name": "Natural Resources Department",
+                    "address": "46 W Exchange St, Akron, OH 44308, USA",
+                    "phone_number": "+13306431370",
+                    "location": {
+                        "lat": 41.076877,
+                        "lng": -81.523802
+                    },
+                    "types": [
+                        "campground",
+                        "lodging",
+                        "park"
+                    ],
+                    "distance": 1170
+                }
+            ]
+        }
+
+        var dummyNewsData = {
+            "feed": {
+                "title": "Akron - Latest - Google News",
+                "updated": "Tue, 22 Mar 2022 16:20:25 GMT",
+                "link": "https://news.google.com/topics/CAAqIQgKIhtDQkFTRGdvSUwyMHZNSG95TUdRU0FtVnVLQUFQAQ?ceid=US:en&hl=en-US&gl=US",
+                "language": "en-US",
+                "subtitle": "Google News",
+                "rights": "2022 Google Inc."
+            },
+            "articles": [
+                {
+                    "id": "CAIiEEmuW5VPQHtx99ZulxrPnh0qGQgEKhAIACoHCAow0Yj_CjDpgvgCMOO15AU",
+                    "title": "2 Akron men sentenced to life in prison for shooting death of 6-year-old girl - WJW FOX 8 News Cleveland",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiZGh0dHBzOi8vZm94OC5jb20vbmV3cy8yLWFrcm9uLW1lbi1zZW50ZW5jZWQtdG8tbGlmZS1pbi1wcmlzb24tZm9yLXNob290aW5nLWRlYXRoLW9mLTYteWVhci1vbGQtZ2lybC_SAQA?oc=5",
+                    "published": "Mon, 21 Mar 2022 22:01:44 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://fox8.com",
+                        "title": "WJW FOX 8 News Cleveland"
+                    }
+                },
+                {
+                    "id": "CBMia2h0dHBzOi8vd3d3Lndrc3Uub3JnL2dvdmVybm1lbnQtcG9saXRpY3MvMjAyMi0wMy0yMS9ha3Jvbi1jaXR5LWNvdW5jaWwtdGFrZXMtbmV4dC1zdGVwcy1vbi1vcGVyYXRpbmctYnVkZ2V00gEA",
+                    "title": "Akron City Council Takes Next Steps on Operating Budget - WKSU News",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMia2h0dHBzOi8vd3d3Lndrc3Uub3JnL2dvdmVybm1lbnQtcG9saXRpY3MvMjAyMi0wMy0yMS9ha3Jvbi1jaXR5LWNvdW5jaWwtdGFrZXMtbmV4dC1zdGVwcy1vbi1vcGVyYXRpbmctYnVkZ2V00gEA?oc=5",
+                    "published": "Mon, 21 Mar 2022 20:32:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.wksu.org",
+                        "title": "WKSU News"
+                    }
+                },
+                {
+                    "id": "CBMirwFodHRwczovL3d3dy5kb3dudG93bmFrcm9uLmNvbS9uZXdzaXRlbS93aXRoLXN1cHBvcnQtZnJvbS1wcmluY2lwYWwtZm91bmRhdGlvbi1hbmQtdGhlLWNpdGllcy1mb3ItZmluYW5jaWFsLWVtcG93ZXJtZW50LWZ1bmQtYWtyb24tYW5ub3VuY2VzLW5ldy1zbWFsbC1idXNpbmVzcy1ib29zdC1pbml0aWF0aXZl0gEA",
+                    "title": "With Support From Principal® Foundation And The Cities For Financial Empowerment Fund, Akron Announces New Small Business Boost Initiative - Downtown Akron Partnership",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMirwFodHRwczovL3d3dy5kb3dudG93bmFrcm9uLmNvbS9uZXdzaXRlbS93aXRoLXN1cHBvcnQtZnJvbS1wcmluY2lwYWwtZm91bmRhdGlvbi1hbmQtdGhlLWNpdGllcy1mb3ItZmluYW5jaWFsLWVtcG93ZXJtZW50LWZ1bmQtYWtyb24tYW5ub3VuY2VzLW5ldy1zbWFsbC1idXNpbmVzcy1ib29zdC1pbml0aWF0aXZl0gEA?oc=5",
+                    "published": "Mon, 21 Mar 2022 17:54:40 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.downtownakron.com",
+                        "title": "Downtown Akron Partnership"
+                    }
+                },
+                {
+                    "id": "CBMilgFodHRwczovL3d3dy5jbGV2ZWxhbmRqZXdpc2huZXdzLmNvbS9ha3Jvbi9uZXctY2VvLWZvci1qZXdpc2gtY29tbXVuaXR5LWJvYXJkLW9mLWFrcm9uLWxheXMtb3V0LWdvYWxzL2FydGljbGVfMWUyMmVmNmEtYTQ2ZS0xMWVjLWI4ZWQtM2YyZDg2MGNkNjI4Lmh0bWzSAZoBaHR0cHM6Ly93d3cuY2xldmVsYW5kamV3aXNobmV3cy5jb20vYWtyb24vbmV3LWNlby1mb3ItamV3aXNoLWNvbW11bml0eS1ib2FyZC1vZi1ha3Jvbi1sYXlzLW91dC1nb2Fscy9hcnRpY2xlXzFlMjJlZjZhLWE0NmUtMTFlYy1iOGVkLTNmMmQ4NjBjZDYyOC5hbXAuaHRtbA",
+                    "title": "New CEO for Jewish Community Board of Akron lays out goals - Cleveland Jewish News",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMilgFodHRwczovL3d3dy5jbGV2ZWxhbmRqZXdpc2huZXdzLmNvbS9ha3Jvbi9uZXctY2VvLWZvci1qZXdpc2gtY29tbXVuaXR5LWJvYXJkLW9mLWFrcm9uLWxheXMtb3V0LWdvYWxzL2FydGljbGVfMWUyMmVmNmEtYTQ2ZS0xMWVjLWI4ZWQtM2YyZDg2MGNkNjI4Lmh0bWzSAZoBaHR0cHM6Ly93d3cuY2xldmVsYW5kamV3aXNobmV3cy5jb20vYWtyb24vbmV3LWNlby1mb3ItamV3aXNoLWNvbW11bml0eS1ib2FyZC1vZi1ha3Jvbi1sYXlzLW91dC1nb2Fscy9hcnRpY2xlXzFlMjJlZjZhLWE0NmUtMTFlYy1iOGVkLTNmMmQ4NjBjZDYyOC5hbXAuaHRtbA?oc=5",
+                    "published": "Mon, 21 Mar 2022 17:00:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.clevelandjewishnews.com",
+                        "title": "Cleveland Jewish News"
+                    }
+                },
+                {
+                    "id": "CBMiS2h0dHBzOi8vYWtyb25zY2hvb2xzLmNvbS9uZXdzL3doYXRfc19uZXcvc2Nob29sX2x1bmNoX3Byb2dyYW1fYW5kX25ld19pZGVhc9IBAA",
+                    "title": "School Lunch Program and New Ideas - Akron Public Schools",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiS2h0dHBzOi8vYWtyb25zY2hvb2xzLmNvbS9uZXdzL3doYXRfc19uZXcvc2Nob29sX2x1bmNoX3Byb2dyYW1fYW5kX25ld19pZGVhc9IBAA?oc=5",
+                    "published": "Mon, 21 Mar 2022 13:10:09 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://akronschools.com",
+                        "title": "Akron Public Schools"
+                    }
+                },
+                {
+                    "id": "CBMigAFodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzL2Frcm9uLWNhbnRvbi1uZXdzLzMwLXllYXJzLWxhdGVyLWFrcm9uLXdvbWFuLXJlbGl2ZXMtbWlyYWNsZS1wbGFuZS1jcmFzaC1zdXJ2aXZhbNIBigFodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzL2Frcm9uLWNhbnRvbi1uZXdzLzMwLXllYXJzLWxhdGVyLWFrcm9uLXdvbWFuLXJlbGl2ZXMtbWlyYWNsZS1wbGFuZS1jcmFzaC1zdXJ2aXZhbD9fYW1wPXRydWU",
+                    "title": "30 years later: Akron woman relives miracle plane crash survival - News 5 Cleveland WEWS",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMigAFodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzL2Frcm9uLWNhbnRvbi1uZXdzLzMwLXllYXJzLWxhdGVyLWFrcm9uLXdvbWFuLXJlbGl2ZXMtbWlyYWNsZS1wbGFuZS1jcmFzaC1zdXJ2aXZhbNIBigFodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzL2Frcm9uLWNhbnRvbi1uZXdzLzMwLXllYXJzLWxhdGVyLWFrcm9uLXdvbWFuLXJlbGl2ZXMtbWlyYWNsZS1wbGFuZS1jcmFzaC1zdXJ2aXZhbD9fYW1wPXRydWU?oc=5",
+                    "published": "Mon, 21 Mar 2022 22:31:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.news5cleveland.com",
+                        "title": "News 5 Cleveland WEWS"
+                    }
+                },
+                {
+                    "id": "CBMiV2h0dHBzOi8vd3d3LmRvd250b3duYWtyb24uY29tL25ld3NpdGVtL3N1bW1pdC1hcnRzcGFjZXMtc3ByaW5nLWV4aGliaXRpb25zLW9wZW4tYXByaWwtONIBAA",
+                    "title": "Summit Artspace's Spring Exhibitions Open April 8 - Downtown Akron Partnership",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiV2h0dHBzOi8vd3d3LmRvd250b3duYWtyb24uY29tL25ld3NpdGVtL3N1bW1pdC1hcnRzcGFjZXMtc3ByaW5nLWV4aGliaXRpb25zLW9wZW4tYXByaWwtONIBAA?oc=5",
+                    "published": "Tue, 22 Mar 2022 14:17:45 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.downtownakron.com",
+                        "title": "Downtown Akron Partnership"
+                    }
+                },
+                {
+                    "id": "CBMicWh0dHBzOi8vY29vbGNsZXZlbGFuZC5jb20vMjAyMi8wMy9ha3JvbnMtZWNsZWN0aWMtZWxlY3RyaWMtcHJlc3N1cmUtY29va2VyLW9wZW4tbWljLWlzLWJhY2stYXQtamlsbHlzLW11c2ljLXJvb20v0gEA",
+                    "title": "Akron's Eclectic Electric Pressure Cooker Open Mic Is Back at Jilly's Music Room | CoolCleveland - CoolCleveland",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMicWh0dHBzOi8vY29vbGNsZXZlbGFuZC5jb20vMjAyMi8wMy9ha3JvbnMtZWNsZWN0aWMtZWxlY3RyaWMtcHJlc3N1cmUtY29va2VyLW9wZW4tbWljLWlzLWJhY2stYXQtamlsbHlzLW11c2ljLXJvb20v0gEA?oc=5",
+                    "published": "Mon, 21 Mar 2022 05:49:03 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://coolcleveland.com",
+                        "title": "CoolCleveland"
+                    }
+                },
+                {
+                    "id": "CAIiEMDy_aip24hxiyMG-DzT5j0qGQgEKhAIACoHCAow3qT_CjC1tPgCMLS-nwY",
+                    "title": "Outlaw Music Festival bringing Willie Nelson, ZZ Top, more to Blossom Music Center - cleveland.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMihQFodHRwczovL3d3dy5jbGV2ZWxhbmQuY29tL2VudGVydGFpbm1lbnQvMjAyMi8wMy9vdXRsYXctbXVzaWMtZmVzdGl2YWwtYnJpbmdpbmctd2lsbGllLW5lbHNvbi16ei10b3AtbW9yZS10by1ibG9zc29tLW11c2ljLWNlbnRlci5odG1s0gEA?oc=5",
+                    "published": "Mon, 21 Mar 2022 14:36:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland.com",
+                        "title": "cleveland.com"
+                    }
+                },
+                {
+                    "id": "CBMiwAFodHRwczovL3d3dy5yaWNobGFuZHNvdXJjZS5jb20vb2hpb19oaWdoX3NjaG9vbF9zcG9ydHMvYm95c19iYXNrZXRiYWxsL2Frcm9uLXN0LXZpbmNlbnQtLS1zdC1tYXJ5LWRhcnRzLWJ5LWdhdGVzLW1pbGxzLWdpbG1vdXItaW4tZWFzeS12aWN0b3J5L2FydGljbGVfNTc3ZGQyZjEtMjRlMi01OWQyLWFjNDItMjgyOGZmZDBkMTQwLmh0bWzSAQA",
+                    "title": "Akron St. Vincent - St. Mary darts by Gates Mills Gilmour in easy victory - Richland Source",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiwAFodHRwczovL3d3dy5yaWNobGFuZHNvdXJjZS5jb20vb2hpb19oaWdoX3NjaG9vbF9zcG9ydHMvYm95c19iYXNrZXRiYWxsL2Frcm9uLXN0LXZpbmNlbnQtLS1zdC1tYXJ5LWRhcnRzLWJ5LWdhdGVzLW1pbGxzLWdpbG1vdXItaW4tZWFzeS12aWN0b3J5L2FydGljbGVfNTc3ZGQyZjEtMjRlMi01OWQyLWFjNDItMjgyOGZmZDBkMTQwLmh0bWzSAQA?oc=5",
+                    "published": "Mon, 21 Mar 2022 03:57:07 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.richlandsource.com",
+                        "title": "Richland Source"
+                    }
+                },
+                {
+                    "id": "CAIiEDbwlt__O63BuStWD7Y3buUqGQgEKhAIACoHCAow3qT_CjC1tPgCMLS-nwY",
+                    "title": "Summit County’s most dangerous intersections: Four in Akron, others scattered across county - cleveland.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMihQFodHRwczovL3d3dy5jbGV2ZWxhbmQuY29tL21ldHJvLzIwMjIvMDMvc3VtbWl0LWNvdW50eXMtbW9zdC1kYW5nZXJvdXMtaW50ZXJzZWN0aW9ucy1mb3VyLWluLWFrcm9uLW90aGVycy1zY2F0dGVyZWQtYWNyb3NzLWNvdW50eS5odG1s0gEA?oc=5",
+                    "published": "Mon, 21 Mar 2022 14:31:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland.com",
+                        "title": "cleveland.com"
+                    }
+                },
+                {
+                    "id": "CBMieWh0dHBzOi8vc3BlY3RydW1uZXdzMS5jb20vb2gvZGF5dG9uL25ld3MvMjAyMi8wMy8yMS9sZWJyb24tamFtZXMtZmFtaWx5LWZvdW5kYXRpb24taG91c2UtdGhyZWUtdGhpcnR5LTMzMC1kYXktaS1wcm9taXNlLS3SAQA",
+                    "title": "LeBron James Family Foundation hosts '330 Day' celebration - Spectrum News 1",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMieWh0dHBzOi8vc3BlY3RydW1uZXdzMS5jb20vb2gvZGF5dG9uL25ld3MvMjAyMi8wMy8yMS9sZWJyb24tamFtZXMtZmFtaWx5LWZvdW5kYXRpb24taG91c2UtdGhyZWUtdGhpcnR5LTMzMC1kYXktaS1wcm9taXNlLS3SAQA?oc=5",
+                    "published": "Mon, 21 Mar 2022 21:25:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://spectrumnews1.com",
+                        "title": "Spectrum News 1"
+                    }
+                },
+                {
+                    "id": "CBMiW2h0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9hZHZpc29yeS10dWVzZGF5LW11c2ljYWwtYW5ub3VuY2VzLTIwMjItc2Nob2xhcnNoaXAtd2lubmVycy_SAQA",
+                    "title": "Advisory: Tuesday Musical announces 2022 scholarship winners - Akron Leader Publications",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiW2h0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9hZHZpc29yeS10dWVzZGF5LW11c2ljYWwtYW5ub3VuY2VzLTIwMjItc2Nob2xhcnNoaXAtd2lubmVycy_SAQA?oc=5",
+                    "published": "Mon, 21 Mar 2022 14:20:51 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.akron.com",
+                        "title": "Akron Leader Publications"
+                    }
+                },
+                {
+                    "id": "CBMigQFodHRwczovL20uY2xldmVzY2VuZS5jb20vY2xldmVsYW5kL3RvbS1wZXR0eS10cmlidXRlLWNvbmNlcnQtdG8tdGFrZS1wbGFjZS1pbi1tYXktYXQtYWtyb25zLWdvb2R5ZWFyLXRoZWF0cmUvQ29udGVudD9vaWQ9Mzg1ODgyMTXSAQA",
+                    "title": "Tom Petty Tribute Concert To Take Place in May at Akron's Goodyear Theatre - Cleveland Scene",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMigQFodHRwczovL20uY2xldmVzY2VuZS5jb20vY2xldmVsYW5kL3RvbS1wZXR0eS10cmlidXRlLWNvbmNlcnQtdG8tdGFrZS1wbGFjZS1pbi1tYXktYXQtYWtyb25zLWdvb2R5ZWFyLXRoZWF0cmUvQ29udGVudD9vaWQ9Mzg1ODgyMTXSAQA?oc=5",
+                    "published": "Tue, 22 Mar 2022 13:04:58 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://m.clevescene.com",
+                        "title": "Cleveland Scene"
+                    }
+                },
+                {
+                    "id": "CBMiggFodHRwczovL3d3dy5jbGV2ZWxhbmRqZXdpc2huZXdzLmNvbS9ha3Jvbi9zY2h1bHR6LWNhbXB1cy1nYWxhLW1heS0xMi1hdC1zaGF3LWpjYy9hcnRpY2xlXzM3NWRjNmZlLWE2Y2EtMTFlYy1hYTFlLTM3ZjllYmY4ODA2Yy5odG1s0gGGAWh0dHBzOi8vd3d3LmNsZXZlbGFuZGpld2lzaG5ld3MuY29tL2Frcm9uL3NjaHVsdHotY2FtcHVzLWdhbGEtbWF5LTEyLWF0LXNoYXctamNjL2FydGljbGVfMzc1ZGM2ZmUtYTZjYS0xMWVjLWFhMWUtMzdmOWViZjg4MDZjLmFtcC5odG1s",
+                    "title": "Schultz Campus Gala May 12 at Shaw JCC - Cleveland Jewish News",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiggFodHRwczovL3d3dy5jbGV2ZWxhbmRqZXdpc2huZXdzLmNvbS9ha3Jvbi9zY2h1bHR6LWNhbXB1cy1nYWxhLW1heS0xMi1hdC1zaGF3LWpjYy9hcnRpY2xlXzM3NWRjNmZlLWE2Y2EtMTFlYy1hYTFlLTM3ZjllYmY4ODA2Yy5odG1s0gGGAWh0dHBzOi8vd3d3LmNsZXZlbGFuZGpld2lzaG5ld3MuY29tL2Frcm9uL3NjaHVsdHotY2FtcHVzLWdhbGEtbWF5LTEyLWF0LXNoYXctamNjL2FydGljbGVfMzc1ZGM2ZmUtYTZjYS0xMWVjLWFhMWUtMzdmOWViZjg4MDZjLmFtcC5odG1s?oc=5",
+                    "published": "Tue, 22 Mar 2022 15:00:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.clevelandjewishnews.com",
+                        "title": "Cleveland Jewish News"
+                    }
+                },
+                {
+                    "id": "CBMidGh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9uZXdzL2xvY2FsLW5ld3MvYWtyb24tY2FudG9uLW5ld3MvYWtyb24tbWFuLWNhcmphY2tlZC1mb3JjZWQtdG8tdGFrZS1vdXQtbW9uZXktYXQtYXRt0gF-aHR0cHM6Ly93d3cubmV3czVjbGV2ZWxhbmQuY29tL25ld3MvbG9jYWwtbmV3cy9ha3Jvbi1jYW50b24tbmV3cy9ha3Jvbi1tYW4tY2FyamFja2VkLWZvcmNlZC10by10YWtlLW91dC1tb25leS1hdC1hdG0_X2FtcD10cnVl",
+                    "title": "Akron man carjacked, forced to take out money at ATM - News 5 Cleveland WEWS",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMidGh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9uZXdzL2xvY2FsLW5ld3MvYWtyb24tY2FudG9uLW5ld3MvYWtyb24tbWFuLWNhcmphY2tlZC1mb3JjZWQtdG8tdGFrZS1vdXQtbW9uZXktYXQtYXRt0gF-aHR0cHM6Ly93d3cubmV3czVjbGV2ZWxhbmQuY29tL25ld3MvbG9jYWwtbmV3cy9ha3Jvbi1jYW50b24tbmV3cy9ha3Jvbi1tYW4tY2FyamFja2VkLWZvcmNlZC10by10YWtlLW91dC1tb25leS1hdC1hdG0_X2FtcD10cnVl?oc=5",
+                    "published": "Tue, 22 Mar 2022 14:30:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.news5cleveland.com",
+                        "title": "News 5 Cleveland WEWS"
+                    }
+                },
+                {
+                    "id": "CBMifGh0dHBzOi8vd3d3LnJlY29yZC1jb3VyaWVyLmNvbS9zdG9yeS9uZXdzLzIwMjIvMDMvMjEva2VudC1wb2xpY2Utc3RhdGlvbi1kZW1vbGlzaGVkLXByb3BlcnR5LW1hcmtlci1mb3VuZC1ydWJibGUvNzA5MTIzMjAwMS_SAS1odHRwczovL2FtcC5yZWNvcmQtY291cmllci5jb20vYW1wLzcwOTEyMzIwMDE",
+                    "title": "Old Kent police station comes down, location marker found in the rubble - Record-Courier",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMifGh0dHBzOi8vd3d3LnJlY29yZC1jb3VyaWVyLmNvbS9zdG9yeS9uZXdzLzIwMjIvMDMvMjEva2VudC1wb2xpY2Utc3RhdGlvbi1kZW1vbGlzaGVkLXByb3BlcnR5LW1hcmtlci1mb3VuZC1ydWJibGUvNzA5MTIzMjAwMS_SAS1odHRwczovL2FtcC5yZWNvcmQtY291cmllci5jb20vYW1wLzcwOTEyMzIwMDE?oc=5",
+                    "published": "Mon, 21 Mar 2022 09:01:47 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.record-courier.com",
+                        "title": "Record-Courier"
+                    }
+                },
+                {
+                    "id": "CBMiRGh0dHBzOi8vYWtyb25zY2hvb2xzLmNvbS9uZXdzL3doYXRfc19uZXcvc2VuaW9yX3NldHNfaGVyX3NpZ2h0c19oaWdo0gEA",
+                    "title": "Senior Sets Her Sights High - Akron Public Schools",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiRGh0dHBzOi8vYWtyb25zY2hvb2xzLmNvbS9uZXdzL3doYXRfc19uZXcvc2VuaW9yX3NldHNfaGVyX3NpZ2h0c19oaWdo0gEA?oc=5",
+                    "published": "Fri, 18 Mar 2022 13:19:26 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://akronschools.com",
+                        "title": "Akron Public Schools"
+                    }
+                },
+                {
+                    "id": "CBMicGh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9uZXdzL2xvY2FsLW5ld3MvYWtyb24tY2FudG9uLW5ld3Mvb2hpby1iY2ktd2FybnMtb2Ytc3Bpa2UtaW4tbmV3LWZvcm0tb2YtZmVudGFueWzSAXpodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzL2Frcm9uLWNhbnRvbi1uZXdzL29oaW8tYmNpLXdhcm5zLW9mLXNwaWtlLWluLW5ldy1mb3JtLW9mLWZlbnRhbnlsP19hbXA9dHJ1ZQ",
+                    "title": "Ohio BCI warns of spike in new form of fentanyl - News 5 Cleveland WEWS",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMicGh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9uZXdzL2xvY2FsLW5ld3MvYWtyb24tY2FudG9uLW5ld3Mvb2hpby1iY2ktd2FybnMtb2Ytc3Bpa2UtaW4tbmV3LWZvcm0tb2YtZmVudGFueWzSAXpodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzL2Frcm9uLWNhbnRvbi1uZXdzL29oaW8tYmNpLXdhcm5zLW9mLXNwaWtlLWluLW5ldy1mb3JtLW9mLWZlbnRhbnlsP19hbXA9dHJ1ZQ?oc=5",
+                    "published": "Fri, 18 Mar 2022 21:55:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.news5cleveland.com",
+                        "title": "News 5 Cleveland WEWS"
+                    }
+                },
+                {
+                    "id": "CBMiYGh0dHBzOi8va2VudHdpcmVkLmNvbS84MzY5OS9sYXRlc3QtdXBkYXRlcy9tZWV0LXRoZS1jYW5kaWRhdGVzLXVuZGVyZ3JhZHVhdGUtc3R1ZGVudC1nb3Zlcm5tZW50L9IBAA",
+                    "title": "Meet the candidates: Undergraduate Student Government – Kent Wired - Kent Wired",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiYGh0dHBzOi8va2VudHdpcmVkLmNvbS84MzY5OS9sYXRlc3QtdXBkYXRlcy9tZWV0LXRoZS1jYW5kaWRhdGVzLXVuZGVyZ3JhZHVhdGUtc3R1ZGVudC1nb3Zlcm5tZW50L9IBAA?oc=5",
+                    "published": "Tue, 22 Mar 2022 05:19:59 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://kentwired.com",
+                        "title": "Kent Wired"
+                    }
+                },
+                {
+                    "id": "CBMiZGh0dHBzOi8vd3d3LmJhcmJlcnRvbmhlcmFsZC5jb20vMjAyMi8wMy8xOC9iYXJiZXJ0b24tbWFuLWluanVyZWQtYWtyb24tbWFuLWtpbGxlZC1pbi1wb3J0YWdlLWNvdW50eS_SAQA",
+                    "title": "Barberton man injured, Akron man killed in Portage County - Barberton Herald",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiZGh0dHBzOi8vd3d3LmJhcmJlcnRvbmhlcmFsZC5jb20vMjAyMi8wMy8xOC9iYXJiZXJ0b24tbWFuLWluanVyZWQtYWtyb24tbWFuLWtpbGxlZC1pbi1wb3J0YWdlLWNvdW50eS_SAQA?oc=5",
+                    "published": "Fri, 18 Mar 2022 15:06:57 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.barbertonherald.com",
+                        "title": "Barberton Herald"
+                    }
+                },
+                {
+                    "id": "CAIiEO7Nv0u2mzfiDy9P072Z19AqGQgEKhAIACoHCAow3qT_CjC1tPgCMLS-nwY",
+                    "title": "VA proposes construction of new Akron health center to consolidate veteran healthcare services - cleveland.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiiwFodHRwczovL3d3dy5jbGV2ZWxhbmQuY29tL2Frcm9uLzIwMjIvMDMvdmEtcHJvcG9zZXMtY29uc3RydWN0aW9uLW9mLW5ldy1ha3Jvbi1oZWFsdGgtY2VudGVyLXRvLWNvbnNvbGlkYXRlLXZldGVyYW4taGVhbHRoY2FyZS1zZXJ2aWNlcy5odG1s0gEA?oc=5",
+                    "published": "Thu, 17 Mar 2022 14:54:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland.com",
+                        "title": "cleveland.com"
+                    }
+                },
+                {
+                    "id": "CBMiVGh0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9ub3J0b24tcmVzaWRlbnQtcmVxdWVzdHMtY2l0eS1wYXktZm9yLWN1bHZlcnQtcmVwYWlyL9IBAA",
+                    "title": "Norton resident requests city pay for culvert repair - Akron Leader Publications",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiVGh0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9ub3J0b24tcmVzaWRlbnQtcmVxdWVzdHMtY2l0eS1wYXktZm9yLWN1bHZlcnQtcmVwYWlyL9IBAA?oc=5",
+                    "published": "Thu, 17 Mar 2022 11:27:51 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.akron.com",
+                        "title": "Akron Leader Publications"
+                    }
+                },
+                {
+                    "id": "CBMid2h0dHBzOi8vd3d3LmNyYWluc2NsZXZlbGFuZC5jb20vcmVhbC1lc3RhdGUvaW5kdXN0cmlhbC1kZXZlbG9wZXItZm9nZy1yZWFkaWVzLW5leHQtYnVpbGRpbmctc3VtbWl0LWNvdW50eS1idXNpbmVzcy1wYXJr0gEA",
+                    "title": "Industrial developer Fogg readies next building for Summit business park - Crain's Cleveland Business",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMid2h0dHBzOi8vd3d3LmNyYWluc2NsZXZlbGFuZC5jb20vcmVhbC1lc3RhdGUvaW5kdXN0cmlhbC1kZXZlbG9wZXItZm9nZy1yZWFkaWVzLW5leHQtYnVpbGRpbmctc3VtbWl0LWNvdW50eS1idXNpbmVzcy1wYXJr0gEA?oc=5",
+                    "published": "Sun, 20 Mar 2022 08:00:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.crainscleveland.com",
+                        "title": "Crain's Cleveland Business"
+                    }
+                },
+                {
+                    "id": "CBMirwFodHRwczovL3d3dy5yaWNobGFuZHNvdXJjZS5jb20vb2hpb19oaWdoX3NjaG9vbF9zcG9ydHMvZ2lybHNfYmFza2V0YmFsbC9ha3Jvbi1zdC12aW5jZW50LS0tc3QtbWFyeS10ZW5kZXJpemVzLWtldHRlcmluZy1hbHRlci9hcnRpY2xlX2UzNmJmN2I1LTgwZmQtNTkxMi1hYWJiLTY5ODNmMGM2MjhlMS5odG1s0gEA",
+                    "title": "Akron St. Vincent - St. Mary tenderizes Kettering Alter | Ohio High School Girls Basketball | richlandsource.com - Richland Source",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMirwFodHRwczovL3d3dy5yaWNobGFuZHNvdXJjZS5jb20vb2hpb19oaWdoX3NjaG9vbF9zcG9ydHMvZ2lybHNfYmFza2V0YmFsbC9ha3Jvbi1zdC12aW5jZW50LS0tc3QtbWFyeS10ZW5kZXJpemVzLWtldHRlcmluZy1hbHRlci9hcnRpY2xlX2UzNmJmN2I1LTgwZmQtNTkxMi1hYWJiLTY5ODNmMGM2MjhlMS5odG1s0gEA?oc=5",
+                    "published": "Sat, 19 Mar 2022 03:57:20 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.richlandsource.com",
+                        "title": "Richland Source"
+                    }
+                },
+                {
+                    "id": "CBMikwFodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzL29oLXN1bW1pdC9zdW1taXQtY291bnR5LWxlYWRlcnMtY29uZnJvbnRpbmctcmlzaW5nLWd1bi1jcmltZXMtYW5kLXRoZS1zcGlrZS1pbi15b3V0aC1jb21taXR0aW5nLXRoZW3SAZ0BaHR0cHM6Ly93d3cubmV3czVjbGV2ZWxhbmQuY29tL25ld3MvbG9jYWwtbmV3cy9vaC1zdW1taXQvc3VtbWl0LWNvdW50eS1sZWFkZXJzLWNvbmZyb250aW5nLXJpc2luZy1ndW4tY3JpbWVzLWFuZC10aGUtc3Bpa2UtaW4teW91dGgtY29tbWl0dGluZy10aGVtP19hbXA9dHJ1ZQ",
+                    "title": "Summit County leaders confronting rising gun crimes and the spike in youth committing them - News 5 Cleveland WEWS",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMikwFodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzL29oLXN1bW1pdC9zdW1taXQtY291bnR5LWxlYWRlcnMtY29uZnJvbnRpbmctcmlzaW5nLWd1bi1jcmltZXMtYW5kLXRoZS1zcGlrZS1pbi15b3V0aC1jb21taXR0aW5nLXRoZW3SAZ0BaHR0cHM6Ly93d3cubmV3czVjbGV2ZWxhbmQuY29tL25ld3MvbG9jYWwtbmV3cy9vaC1zdW1taXQvc3VtbWl0LWNvdW50eS1sZWFkZXJzLWNvbmZyb250aW5nLXJpc2luZy1ndW4tY3JpbWVzLWFuZC10aGUtc3Bpa2UtaW4teW91dGgtY29tbWl0dGluZy10aGVtP19hbXA9dHJ1ZQ?oc=5",
+                    "published": "Tue, 22 Mar 2022 11:12:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.news5cleveland.com",
+                        "title": "News 5 Cleveland WEWS"
+                    }
+                },
+                {
+                    "id": "CBMiU2h0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9ub3J0b24tZGlzdHJpY3QtYnVzLWRyaXZlci1wYXktZGlzY3Vzc2lvbnMtY29udGludWUv0gEA",
+                    "title": "Norton district bus driver pay discussions continue - Akron Leader Publications",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiU2h0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9ub3J0b24tZGlzdHJpY3QtYnVzLWRyaXZlci1wYXktZGlzY3Vzc2lvbnMtY29udGludWUv0gEA?oc=5",
+                    "published": "Thu, 17 Mar 2022 11:27:51 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.akron.com",
+                        "title": "Akron Leader Publications"
+                    }
+                },
+                {
+                    "id": "CBMiaGh0dHBzOi8va2VudHdpcmVkLmNvbS84MzY2NC91bmNhdGVnb3JpemVkL3VzZy1jYW5kaWRhdGVzLXRha2UtdGhlLXN0YWdlLWRlYmF0ZXMtbWVudGFsLWhlYWx0aC1vbi1jYW1wdXMv0gEA",
+                    "title": "USG Candidates take the stage, debates mental health on campus - Kent Wired",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiaGh0dHBzOi8va2VudHdpcmVkLmNvbS84MzY2NC91bmNhdGVnb3JpemVkL3VzZy1jYW5kaWRhdGVzLXRha2UtdGhlLXN0YWdlLWRlYmF0ZXMtbWVudGFsLWhlYWx0aC1vbi1jYW1wdXMv0gEA?oc=5",
+                    "published": "Sun, 20 Mar 2022 22:45:27 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://kentwired.com",
+                        "title": "Kent Wired"
+                    }
+                },
+                {
+                    "id": "CAIiEF072IGzPnjAfDduuo111WMqGQgEKhAIACoHCAow3qT_CjC1tPgCMLS-nwY",
+                    "title": "Akron City Council to vote on proposed 2022 operating budget; no sewer or water rate hikes planned - cleveland.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMijgFodHRwczovL3d3dy5jbGV2ZWxhbmQuY29tL2Frcm9uLzIwMjIvMDMvYWtyb24tY2l0eS1jb3VuY2lsLXRvLXZvdGUtb24tcHJvcG9zZWQtMjAyMi1vcGVyYXRpbmctYnVkZ2V0LW5vLXNld2VyLW9yLXdhdGVyLXJhdGUtaGlrZXMtcGxhbm5lZC5odG1s0gEA?oc=5",
+                    "published": "Wed, 16 Mar 2022 20:09:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland.com",
+                        "title": "cleveland.com"
+                    }
+                },
+                {
+                    "id": "CBMiQGh0dHBzOi8vd2Vla2x5dmlsbGFnZXIuY29tL2xlYWRlcnNoaXAtcG9ydGFnZS1jb3VudHktY29uZmVyZW5jZS_SAURodHRwczovL3dlZWtseXZpbGxhZ2VyLmNvbS9sZWFkZXJzaGlwLXBvcnRhZ2UtY291bnR5LWNvbmZlcmVuY2UvP2FtcA",
+                    "title": "Leadership Portage County Conference - The Weekly Villager",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiQGh0dHBzOi8vd2Vla2x5dmlsbGFnZXIuY29tL2xlYWRlcnNoaXAtcG9ydGFnZS1jb3VudHktY29uZmVyZW5jZS_SAURodHRwczovL3dlZWtseXZpbGxhZ2VyLmNvbS9sZWFkZXJzaGlwLXBvcnRhZ2UtY291bnR5LWNvbmZlcmVuY2UvP2FtcA?oc=5",
+                    "published": "Sun, 20 Mar 2022 17:52:19 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://weeklyvillager.com",
+                        "title": "The Weekly Villager"
+                    }
+                },
+                {
+                    "id": "CAIiEKeFax_Y5l9lQt50s_arU5sqGQgEKhAIACoHCAow0Yj_CjDpgvgCMOO15AU",
+                    "title": "Woman dies after drunken driving crash in Akron: police - WJW FOX 8 News Cleveland",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiTWh0dHBzOi8vZm94OC5jb20vbmV3cy93b21hbi1kaWVzLWFmdGVyLWRydW5rZW4tZHJpdmluZy1jcmFzaC1pbi1ha3Jvbi1wb2xpY2Uv0gEA?oc=5",
+                    "published": "Thu, 17 Mar 2022 15:46:08 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://fox8.com",
+                        "title": "WJW FOX 8 News Cleveland"
+                    }
+                },
+                {
+                    "id": "CBMidmh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9uZXdzL2xvY2FsLW5ld3MvdGhlLWxhc3QtcmVtYWluaW5nLWFydGh1ci10cmVhY2hlcnMtZmlzaC1jaGlwcy1ib3VuY2VzLWJhY2stZHVyaW5nLWxlbnTSAYABaHR0cHM6Ly93d3cubmV3czVjbGV2ZWxhbmQuY29tL25ld3MvbG9jYWwtbmV3cy90aGUtbGFzdC1yZW1haW5pbmctYXJ0aHVyLXRyZWFjaGVycy1maXNoLWNoaXBzLWJvdW5jZXMtYmFjay1kdXJpbmctbGVudD9fYW1wPXRydWU",
+                    "title": "The last remaining Arthur Treacher's Fish & Chips bounces back during Lent - News 5 Cleveland WEWS",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMidmh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9uZXdzL2xvY2FsLW5ld3MvdGhlLWxhc3QtcmVtYWluaW5nLWFydGh1ci10cmVhY2hlcnMtZmlzaC1jaGlwcy1ib3VuY2VzLWJhY2stZHVyaW5nLWxlbnTSAYABaHR0cHM6Ly93d3cubmV3czVjbGV2ZWxhbmQuY29tL25ld3MvbG9jYWwtbmV3cy90aGUtbGFzdC1yZW1haW5pbmctYXJ0aHVyLXRyZWFjaGVycy1maXNoLWNoaXBzLWJvdW5jZXMtYmFjay1kdXJpbmctbGVudD9fYW1wPXRydWU?oc=5",
+                    "published": "Fri, 18 Mar 2022 20:47:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.news5cleveland.com",
+                        "title": "News 5 Cleveland WEWS"
+                    }
+                },
+                {
+                    "id": "CBMidmh0dHBzOi8vd3d3LnJlY29yZC1jb3VyaWVyLmNvbS9zdG9yeS9uZXdzLzIwMjIvMDMvMjEva2VudC1oZWFsdGgtZGVwYXJ0bWVudC1hd2FyZGVkLW5hdGlvbmFsLWFjY3JlZGl0YXRpb24vOTQ1NjAwMzAwMi_SAS1odHRwczovL2FtcC5yZWNvcmQtY291cmllci5jb20vYW1wLzk0NTYwMDMwMDI",
+                    "title": "Kent Health Department awarded national accreditation - Record-Courier",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMidmh0dHBzOi8vd3d3LnJlY29yZC1jb3VyaWVyLmNvbS9zdG9yeS9uZXdzLzIwMjIvMDMvMjEva2VudC1oZWFsdGgtZGVwYXJ0bWVudC1hd2FyZGVkLW5hdGlvbmFsLWFjY3JlZGl0YXRpb24vOTQ1NjAwMzAwMi_SAS1odHRwczovL2FtcC5yZWNvcmQtY291cmllci5jb20vYW1wLzk0NTYwMDMwMDI?oc=5",
+                    "published": "Mon, 21 Mar 2022 18:51:14 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.record-courier.com",
+                        "title": "Record-Courier"
+                    }
+                },
+                {
+                    "id": "CBMiTmh0dHBzOi8vd3d3LmNyYWluc2NsZXZlbGFuZC5jb20vYWtyb24tbmV3cy9ydWJiZXItY2l0eS10aGVhdHJlLXRha2VzLW5ldy1zdGFnZdIBAA",
+                    "title": "Rubber City Theatre takes to a new stage - Crain's Cleveland Business",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiTmh0dHBzOi8vd3d3LmNyYWluc2NsZXZlbGFuZC5jb20vYWtyb24tbmV3cy9ydWJiZXItY2l0eS10aGVhdHJlLXRha2VzLW5ldy1zdGFnZdIBAA?oc=5",
+                    "published": "Thu, 17 Mar 2022 15:21:26 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.crainscleveland.com",
+                        "title": "Crain's Cleveland Business"
+                    }
+                },
+                {
+                    "id": "CAIiEOSIPsYoqfGfEezBD1wHPK0qGQgEKhAIACoHCAow3qT_CjC1tPgCMLS-nwY",
+                    "title": "Summit County considers high-speed internet, asks residents to complete online feasibility survey - cleveland.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMijQFodHRwczovL3d3dy5jbGV2ZWxhbmQuY29tL2Frcm9uLzIwMjIvMDMvc3VtbWl0LWNvdW50eS1jb25zaWRlcnMtaGlnaC1zcGVlZC1pbnRlcm5ldC1hc2tzLXJlc2lkZW50cy10by1jb21wbGV0ZS1vbmxpbmUtZmVhc2liaWxpdHktc3VydmV5Lmh0bWzSAQA?oc=5",
+                    "published": "Thu, 17 Mar 2022 18:13:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland.com",
+                        "title": "cleveland.com"
+                    }
+                },
+                {
+                    "id": "CBMiP2h0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9zdW1taXQtY291bnR5LWRlYXRoLW5vdGljZXMtMTE4L9IBAA",
+                    "title": "Summit County death notices - Akron Leader Publications",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiP2h0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9zdW1taXQtY291bnR5LWRlYXRoLW5vdGljZXMtMTE4L9IBAA?oc=5",
+                    "published": "Thu, 17 Mar 2022 11:27:51 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.akron.com",
+                        "title": "Akron Leader Publications"
+                    }
+                },
+                {
+                    "id": "CBMijQFodHRwczovL3d3dy5jbGV2ZWxhbmRqZXdpc2huZXdzLmNvbS9ha3Jvbi9ib2Jlci1tYXJrZXktZmVkb3JvdmljaC1hZGRzLXRvLXN0YWZmLWluLWZhaXJsYXduL2FydGljbGVfYWE4Nzk4ZGMtOWU1ZC0xMWVjLWI3YjYtN2Y5ODNjNzBhYzk0Lmh0bWzSAZEBaHR0cHM6Ly93d3cuY2xldmVsYW5kamV3aXNobmV3cy5jb20vYWtyb24vYm9iZXItbWFya2V5LWZlZG9yb3ZpY2gtYWRkcy10by1zdGFmZi1pbi1mYWlybGF3bi9hcnRpY2xlX2FhODc5OGRjLTllNWQtMTFlYy1iN2I2LTdmOTgzYzcwYWM5NC5hbXAuaHRtbA",
+                    "title": "Bober Markey Fedorovich adds to staff in Fairlawn - Cleveland Jewish News",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMijQFodHRwczovL3d3dy5jbGV2ZWxhbmRqZXdpc2huZXdzLmNvbS9ha3Jvbi9ib2Jlci1tYXJrZXktZmVkb3JvdmljaC1hZGRzLXRvLXN0YWZmLWluLWZhaXJsYXduL2FydGljbGVfYWE4Nzk4ZGMtOWU1ZC0xMWVjLWI3YjYtN2Y5ODNjNzBhYzk0Lmh0bWzSAZEBaHR0cHM6Ly93d3cuY2xldmVsYW5kamV3aXNobmV3cy5jb20vYWtyb24vYm9iZXItbWFya2V5LWZlZG9yb3ZpY2gtYWRkcy10by1zdGFmZi1pbi1mYWlybGF3bi9hcnRpY2xlX2FhODc5OGRjLTllNWQtMTFlYy1iN2I2LTdmOTgzYzcwYWM5NC5hbXAuaHRtbA?oc=5",
+                    "published": "Fri, 18 Mar 2022 19:00:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.clevelandjewishnews.com",
+                        "title": "Cleveland Jewish News"
+                    }
+                },
+                {
+                    "id": "CBMiYGh0dHBzOi8vd3d3LmNsZXZlbGFuZDE5LmNvbS8yMDIyLzAzLzE3L2dvdi1kZXdpbmUtaG9sZHMtb2hpby1zdW1taXQtaG93LWhlbHAtdWtyYWluaWFuLXJlZnVnZWVzL9IBAA",
+                    "title": "Gov. DeWine holds Ohio Summit on how to help Ukrainian refugees - Cleveland 19 News",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiYGh0dHBzOi8vd3d3LmNsZXZlbGFuZDE5LmNvbS8yMDIyLzAzLzE3L2dvdi1kZXdpbmUtaG9sZHMtb2hpby1zdW1taXQtaG93LWhlbHAtdWtyYWluaWFuLXJlZnVnZWVzL9IBAA?oc=5",
+                    "published": "Thu, 17 Mar 2022 18:04:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland19.com",
+                        "title": "Cleveland 19 News"
+                    }
+                },
+                {
+                    "id": "CBMidGh0dHBzOi8vd3d3LmlkZWFzdHJlYW0ub3JnL25ld3Mvc3VtbWl0LWNvdW50eS1nZXRzLW1vcmUtZmVkZXJhbC1mdW5kaW5nLWZvci1jb3ZpZC0xOS1yZW50YWwtYW5kLXV0aWxpdGllcy1hc3Npc3RhbmNl0gEA",
+                    "title": "Summit County gets more federal funding for COVID-19 rental and utilities assistance - ideastream",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMidGh0dHBzOi8vd3d3LmlkZWFzdHJlYW0ub3JnL25ld3Mvc3VtbWl0LWNvdW50eS1nZXRzLW1vcmUtZmVkZXJhbC1mdW5kaW5nLWZvci1jb3ZpZC0xOS1yZW50YWwtYW5kLXV0aWxpdGllcy1hc3Npc3RhbmNl0gEA?oc=5",
+                    "published": "Thu, 17 Mar 2022 14:48:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.ideastream.org",
+                        "title": "ideastream"
+                    }
+                },
+                {
+                    "id": "CBMib2h0dHBzOi8vd3d3LnRvbGVkb2JsYWRlLmNvbS9zcG9ydHMvdXQvMjAyMi8wMy8yMS9waG90by1nYWxsZXJ5LXRvbGVkby03OS1rZW50LXN0YXRlLTU5LXduaXQvc3Rvcmllcy8yMDIyMDMyMTEzNdIBAA",
+                    "title": "Photo Gallery: Toledo 79, Kent State 59 (WNIT) | The Blade - Toledo Blade",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMib2h0dHBzOi8vd3d3LnRvbGVkb2JsYWRlLmNvbS9zcG9ydHMvdXQvMjAyMi8wMy8yMS9waG90by1nYWxsZXJ5LXRvbGVkby03OS1rZW50LXN0YXRlLTU5LXduaXQvc3Rvcmllcy8yMDIyMDMyMTEzNdIBAA?oc=5",
+                    "published": "Tue, 22 Mar 2022 02:17:51 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.toledoblade.com",
+                        "title": "Toledo Blade"
+                    }
+                },
+                {
+                    "id": "CBMiQWh0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9zb3V0aC1zaWRlLW5laWdoYm9yaG9vZC13YXRjaC0xMjMv0gEA",
+                    "title": "South Side Neighborhood Watch - Akron Leader Publications",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiQWh0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9zb3V0aC1zaWRlLW5laWdoYm9yaG9vZC13YXRjaC0xMjMv0gEA?oc=5",
+                    "published": "Thu, 17 Mar 2022 11:27:51 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.akron.com",
+                        "title": "Akron Leader Publications"
+                    }
+                },
+                {
+                    "id": "CAIiEGtIK23YSc3yF7sOh-CBRRQqGQgEKhAIACoHCAow3qT_CjC1tPgCMLS-nwY",
+                    "title": "Kent State School of Music to commemorate May 4 shootings with Severance performance - cleveland.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiiQFodHRwczovL3d3dy5jbGV2ZWxhbmQuY29tL2VudGVydGFpbm1lbnQvMjAyMi8wMy9rZW50LXN0YXRlLXNjaG9vbC1vZi1tdXNpYy10by1jb21tZW1vcmF0ZS1tYXktNC1zaG9vdGluZ3Mtd2l0aC1zZXZlcmFuY2UtcGVyZm9ybWFuY2UuaHRtbNIBAA?oc=5",
+                    "published": "Mon, 21 Mar 2022 20:41:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland.com",
+                        "title": "cleveland.com"
+                    }
+                },
+                {
+                    "id": "CBMidmh0dHBzOi8vc3BlY3RydW1uZXdzMS5jb20vb2gvdG9sZWRvL25ld3MvMjAyMi8wMy8xNC9vbmxpbmUtcG9ldHJ5LXByb2plY3Qtd2l0aC1rZW50LXN0YXRlLXJvb3RzLWJlY29tZXMtcHVibGlzaGVkLWJvb2vSAQA",
+                    "title": "Vaccine poetry project with Kent State roots becomes published book - Spectrum News 1",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMidmh0dHBzOi8vc3BlY3RydW1uZXdzMS5jb20vb2gvdG9sZWRvL25ld3MvMjAyMi8wMy8xNC9vbmxpbmUtcG9ldHJ5LXByb2plY3Qtd2l0aC1rZW50LXN0YXRlLXJvb3RzLWJlY29tZXMtcHVibGlzaGVkLWJvb2vSAQA?oc=5",
+                    "published": "Mon, 21 Mar 2022 18:45:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://spectrumnews1.com",
+                        "title": "Spectrum News 1"
+                    }
+                },
+                {
+                    "id": "CBMiYWh0dHBzOi8vd3d3LndrYm4uY29tL25ld3MvZWxlY3Rpb25zL3Byby10cnVtcC1vaGlvLWNhbmRpZGF0ZXMtcmVhbGl6ZS1lbmRvcnNlbWVudC1tYXktbmV2ZXItY29tZS_SAWVodHRwczovL3d3dy53a2JuLmNvbS9uZXdzL2VsZWN0aW9ucy9wcm8tdHJ1bXAtb2hpby1jYW5kaWRhdGVzLXJlYWxpemUtZW5kb3JzZW1lbnQtbWF5LW5ldmVyLWNvbWUvYW1wLw",
+                    "title": "Pro-Trump Ohio candidates realize endorsement may never come - WKBN.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiYWh0dHBzOi8vd3d3LndrYm4uY29tL25ld3MvZWxlY3Rpb25zL3Byby10cnVtcC1vaGlvLWNhbmRpZGF0ZXMtcmVhbGl6ZS1lbmRvcnNlbWVudC1tYXktbmV2ZXItY29tZS_SAWVodHRwczovL3d3dy53a2JuLmNvbS9uZXdzL2VsZWN0aW9ucy9wcm8tdHJ1bXAtb2hpby1jYW5kaWRhdGVzLXJlYWxpemUtZW5kb3JzZW1lbnQtbWF5LW5ldmVyLWNvbWUvYW1wLw?oc=5",
+                    "published": "Sat, 19 Mar 2022 00:23:29 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.wkbn.com",
+                        "title": "WKBN.com"
+                    }
+                },
+                {
+                    "id": "CBMiWmh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9zcG9ydHMvc2hvdWxkLWhpZ2gtc2Nob29sLWJhc2tldGJhbGwtZ2FtZXMtaGF2ZS1zaG90LWNsb2Nrc9IBZGh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9zcG9ydHMvc2hvdWxkLWhpZ2gtc2Nob29sLWJhc2tldGJhbGwtZ2FtZXMtaGF2ZS1zaG90LWNsb2Nrcz9fYW1wPXRydWU",
+                    "title": "Should Ohio high school basketball games have shot clocks? - News 5 Cleveland WEWS",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiWmh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9zcG9ydHMvc2hvdWxkLWhpZ2gtc2Nob29sLWJhc2tldGJhbGwtZ2FtZXMtaGF2ZS1zaG90LWNsb2Nrc9IBZGh0dHBzOi8vd3d3Lm5ld3M1Y2xldmVsYW5kLmNvbS9zcG9ydHMvc2hvdWxkLWhpZ2gtc2Nob29sLWJhc2tldGJhbGwtZ2FtZXMtaGF2ZS1zaG90LWNsb2Nrcz9fYW1wPXRydWU?oc=5",
+                    "published": "Mon, 21 Mar 2022 21:54:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.news5cleveland.com",
+                        "title": "News 5 Cleveland WEWS"
+                    }
+                },
+                {
+                    "id": "CBMiYGh0dHBzOi8vd3d3LmNsZXZlbGFuZDE5LmNvbS8yMDIyLzAzLzE4L3BvbGljZS1uZWVkLWhlbHAtc29sdmluZy1ib3RjaGVkLWF0bS10aGVmdC1zdW1taXQtY291bnR5L9IBAA",
+                    "title": "Police need help solving botched ATM theft in Summit County - Cleveland 19 News",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiYGh0dHBzOi8vd3d3LmNsZXZlbGFuZDE5LmNvbS8yMDIyLzAzLzE4L3BvbGljZS1uZWVkLWhlbHAtc29sdmluZy1ib3RjaGVkLWF0bS10aGVmdC1zdW1taXQtY291bnR5L9IBAA?oc=5",
+                    "published": "Fri, 18 Mar 2022 17:25:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland19.com",
+                        "title": "Cleveland 19 News"
+                    }
+                },
+                {
+                    "id": "CBMiRmh0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9taW5pLW1vbnN0ZXItY291cnNlLW9wZW5zLWF0LWFrcm9uLXpvby_SAQA",
+                    "title": "Mini Monster Course opens at Akron Zoo - Akron Leader Publications",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiRmh0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9taW5pLW1vbnN0ZXItY291cnNlLW9wZW5zLWF0LWFrcm9uLXpvby_SAQA?oc=5",
+                    "published": "Thu, 17 Mar 2022 11:27:51 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.akron.com",
+                        "title": "Akron Leader Publications"
+                    }
+                },
+                {
+                    "id": "CBMiXGh0dHBzOi8vbm9yd2Fsa3JlZmxlY3Rvci5jb20vbmV3cy8zNzY1NDkvdGFmdHMtZWRnZXMtb3R0YXdhLWdsYW5kb3JmLWZvci1zZWNvbmQtc3RhdGUtdGl0bGUv0gEA",
+                    "title": "Taft's edges Ottawa-Glandorf for second state title - Norwalk Reflector",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiXGh0dHBzOi8vbm9yd2Fsa3JlZmxlY3Rvci5jb20vbmV3cy8zNzY1NDkvdGFmdHMtZWRnZXMtb3R0YXdhLWdsYW5kb3JmLWZvci1zZWNvbmQtc3RhdGUtdGl0bGUv0gEA?oc=5",
+                    "published": "Mon, 21 Mar 2022 08:28:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://norwalkreflector.com",
+                        "title": "Norwalk Reflector"
+                    }
+                },
+                {
+                    "id": "CBMiY2h0dHBzOi8va2VudHdpcmVkLmNvbS84MzY2Ni91bmNhdGVnb3JpemVkL2tlbnQtc3RhdGUtZWFybnMtZ29sZC1hd2FyZC1mb3ItbWlsaXRhcnktZnJpZW5kbHktc2Nob29sL9IBAA",
+                    "title": "Kent State earns gold award for military friendly school - Kent Wired",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiY2h0dHBzOi8va2VudHdpcmVkLmNvbS84MzY2Ni91bmNhdGVnb3JpemVkL2tlbnQtc3RhdGUtZWFybnMtZ29sZC1hd2FyZC1mb3ItbWlsaXRhcnktZnJpZW5kbHktc2Nob29sL9IBAA?oc=5",
+                    "published": "Sun, 20 Mar 2022 22:45:27 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://kentwired.com",
+                        "title": "Kent Wired"
+                    }
+                },
+                {
+                    "id": "CBMiUGh0dHBzOi8vd3d3LmJhcmJlcnRvbmhlcmFsZC5jb20vMjAyMi8wMy8xOC9mb3VyLWFsYXJtLWZpcmUtaW50ZXJydXB0cy1hZnRlcm5vb24v0gEA",
+                    "title": "Multiple agencies battle industrial blaze - Barberton Herald",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiUGh0dHBzOi8vd3d3LmJhcmJlcnRvbmhlcmFsZC5jb20vMjAyMi8wMy8xOC9mb3VyLWFsYXJtLWZpcmUtaW50ZXJydXB0cy1hZnRlcm5vb24v0gEA?oc=5",
+                    "published": "Fri, 18 Mar 2022 20:57:22 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.barbertonherald.com",
+                        "title": "Barberton Herald"
+                    }
+                },
+                {
+                    "id": "CAIiEAgen7dTI2BIpRe-qmd4sQAqGQgEKhAIACoHCAow0Yj_CjDpgvgCMOO15AU",
+                    "title": "LeBron James congratulates St. Vincent-St. Mary boy’s basketball team on 10th state title - WJW FOX 8 News Cleveland",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiamh0dHBzOi8vZm94OC5jb20vc3BvcnRzL2xlYnJvbi1qYW1lcy1jb25ncmF0dWxhdGVzLXN0LXZpbmNlbnQtc3QtbWFyeS1ib3lzLWJhc2tldGJhbGwtb24tMTB0aC1zdGF0ZS10aXRsZS_SAQA?oc=5",
+                    "published": "Sun, 20 Mar 2022 23:23:57 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://fox8.com",
+                        "title": "WJW FOX 8 News Cleveland"
+                    }
+                },
+                {
+                    "id": "CBMiSmh0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9zcHJpbmdmaWVsZC1ib2Utc2VsZWN0cy1uZXctc3VwZXJpbnRlbmRlbnQv0gEA",
+                    "title": "Springfield BOE selects new superintendent - Akron Leader Publications",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiSmh0dHBzOi8vd3d3LmFrcm9uLmNvbS9hcnRpY2xlcy9zcHJpbmdmaWVsZC1ib2Utc2VsZWN0cy1uZXctc3VwZXJpbnRlbmRlbnQv0gEA?oc=5",
+                    "published": "Thu, 17 Mar 2022 11:27:51 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.akron.com",
+                        "title": "Akron Leader Publications"
+                    }
+                },
+                {
+                    "id": "CAIiEMG9XxECqfsSfu9a5Ax0FNAqGQgEKhAIACoHCAow3qT_CjC1tPgCMLS-nwY",
+                    "title": "Man, 61, found dead in house fire in Barberton - cleveland.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiWWh0dHBzOi8vd3d3LmNsZXZlbGFuZC5jb20vYWtyb24vMjAyMi8wMy9tYW4tNjEtZm91bmQtZGVhZC1pbi1ob3VzZS1maXJlLWluLWJhcmJlcnRvbi5odG1s0gEA?oc=5",
+                    "published": "Fri, 18 Mar 2022 02:41:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland.com",
+                        "title": "cleveland.com"
+                    }
+                },
+                {
+                    "id": "CBMinQFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzLzIwMjIvMDMvMTkvYnJhdmUtZmFjZS11YS1ncmFkdWF0ZS1sYW1pc2UtZWxiZXRhci1mYWNlcy1hbm90aGVyLWZvcmstcm9hZC12ZW5vdXMtbWFsZm9ybWF0aW9uLXRlYW0tbGFtaXNlLzY5NzY5MDYwMDEv0gEsaHR0cHM6Ly9hbXAuYmVhY29uam91cm5hbC5jb20vYW1wLzY5NzY5MDYwMDE",
+                    "title": "Brave Face: Another fork in the road for University of Akron grad Lamise ElBetar - Akron Beacon Journal",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMinQFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzLzIwMjIvMDMvMTkvYnJhdmUtZmFjZS11YS1ncmFkdWF0ZS1sYW1pc2UtZWxiZXRhci1mYWNlcy1hbm90aGVyLWZvcmstcm9hZC12ZW5vdXMtbWFsZm9ybWF0aW9uLXRlYW0tbGFtaXNlLzY5NzY5MDYwMDEv0gEsaHR0cHM6Ly9hbXAuYmVhY29uam91cm5hbC5jb20vYW1wLzY5NzY5MDYwMDE?oc=5",
+                    "published": "Sat, 19 Mar 2022 09:58:41 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.beaconjournal.com",
+                        "title": "Akron Beacon Journal"
+                    }
+                },
+                {
+                    "id": "CBMiWmh0dHBzOi8vd3d3LmNsZXZlbGFuZDE5LmNvbS8yMDIyLzAzLzIxL2Frcm9uLXRlZW5hZ2VyLWZvdW5kLW11cmRlcmVkLWNsZXZlbGFuZHMtZWFzdC1zaWRlL9IBAA",
+                    "title": "Akron teenager found murdered on Cleveland's East Side - Cleveland 19 News",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiWmh0dHBzOi8vd3d3LmNsZXZlbGFuZDE5LmNvbS8yMDIyLzAzLzIxL2Frcm9uLXRlZW5hZ2VyLWZvdW5kLW11cmRlcmVkLWNsZXZlbGFuZHMtZWFzdC1zaWRlL9IBAA?oc=5",
+                    "published": "Mon, 21 Mar 2022 12:36:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland19.com",
+                        "title": "Cleveland 19 News"
+                    }
+                },
+                {
+                    "id": "1328006277",
+                    "title": "Two Akron men sentenced to life in prison for death of 6-year-old girl caught in crossfire - Akron Beacon Journal",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMidmh0dHBzOi8vd3d3LmJlYWNvbmpvdXJuYWwuY29tL3N0b3J5L25ld3MvMjAyMi8wMy8yMS90d28tYWtyb24tbWVuLXNlbnRlbmNlZC1saWZlLWdpcmxzLWFjY2lkZW50YWwtc2hvb3RpbmcvNzA4MjQwMDAwMS_SASxodHRwczovL2FtcC5iZWFjb25qb3VybmFsLmNvbS9hbXAvNzA4MjQwMDAwMQ?oc=5",
+                    "published": "Mon, 21 Mar 2022 18:56:15 GMT",
+                    "sub_articles": [
+                        {
+                            "url": "https://news.google.com/__i/rss/rd/articles/CBMidmh0dHBzOi8vd3d3LmJlYWNvbmpvdXJuYWwuY29tL3N0b3J5L25ld3MvMjAyMi8wMy8yMS90d28tYWtyb24tbWVuLXNlbnRlbmNlZC1saWZlLWdpcmxzLWFjY2lkZW50YWwtc2hvb3RpbmcvNzA4MjQwMDAwMS_SASxodHRwczovL2FtcC5iZWFjb25qb3VybmFsLmNvbS9hbXAvNzA4MjQwMDAwMQ?oc=5",
+                            "title": "Two Akron men sentenced to life in prison for death of 6-year-old girl caught in crossfire",
+                            "publisher": "Akron Beacon Journal"
+                        },
+                        {
+                            "url": "https://news.google.com/__i/rss/rd/articles/CBMiZmh0dHBzOi8vd3d3LmNsZXZlbGFuZDE5LmNvbS8yMDIyLzAzLzIxL2Frcm9uLW1hbi1wbGVhZHMtZ3VpbHR5LWNvbm5lY3Rpb24td2l0aC1tdXJkZXItNi15ZWFyLW9sZC1naXJsL9IBAA?oc=5",
+                            "title": "2 Akron men plead guilty in connection with murder of 6-year-old girl",
+                            "publisher": "Cleveland 19 News"
+                        },
+                        {
+                            "url": "https://news.google.com/__i/rss/rd/articles/CBMimAFodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzLzItbWVuLXBsZWFkLWd1aWx0eS1zZW50ZW5jZWQtdG8tMTYteWVhcnMtdG8tbGlmZS1pbi1wcmlzb24tZm9yLW11cmRlci1vZi02LXllYXItb2xkLWdpcmwtaW4tYWtyb24taW4tMjAyMNIBogFodHRwczovL3d3dy5uZXdzNWNsZXZlbGFuZC5jb20vbmV3cy9sb2NhbC1uZXdzLzItbWVuLXBsZWFkLWd1aWx0eS1zZW50ZW5jZWQtdG8tMTYteWVhcnMtdG8tbGlmZS1pbi1wcmlzb24tZm9yLW11cmRlci1vZi02LXllYXItb2xkLWdpcmwtaW4tYWtyb24taW4tMjAyMD9fYW1wPXRydWU?oc=5",
+                            "title": "2 men plead guilty, sentenced to 16 years to life in prison for murder of 6-year-old girl in Akron in 2020",
+                            "publisher": "News 5 Cleveland WEWS"
+                        }
+                    ],
+                    "source": {
+                        "href": "https://www.beaconjournal.com",
+                        "title": "Akron Beacon Journal"
+                    }
+                },
+                {
+                    "id": "CBMihQFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzL2xvY2FsLzIwMjIvMDMvMTgvdGVuYW50LXVzaW5nLXdoZWVsY2hhaXItc3Vlcy1rZW5tb3JlLXBsYWNlLW92ZXItaW5hY2Nlc3NpYmlsaXR5LzcwMDIyOTMwMDEv0gEsaHR0cHM6Ly9hbXAuYmVhY29uam91cm5hbC5jb20vYW1wLzcwMDIyOTMwMDE",
+                    "title": "Trapped and forced to hop down staircase: Tenant sues Kenmore Place over inaccessibility - Akron Beacon Journal",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMihQFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzL2xvY2FsLzIwMjIvMDMvMTgvdGVuYW50LXVzaW5nLXdoZWVsY2hhaXItc3Vlcy1rZW5tb3JlLXBsYWNlLW92ZXItaW5hY2Nlc3NpYmlsaXR5LzcwMDIyOTMwMDEv0gEsaHR0cHM6Ly9hbXAuYmVhY29uam91cm5hbC5jb20vYW1wLzcwMDIyOTMwMDE?oc=5",
+                    "published": "Fri, 18 Mar 2022 09:49:29 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.beaconjournal.com",
+                        "title": "Akron Beacon Journal"
+                    }
+                },
+                {
+                    "id": "CAIiEK_x7yxafFv96S40DDhQzxMqGQgEKhAIACoHCAow0Yj_CjDpgvgCMOO15AU",
+                    "title": "Akron celebrates St. Patrick’s Day early with street parade - WJW FOX 8 News Cleveland",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiUmh0dHBzOi8vZm94OC5jb20vbmV3cy9ha3Jvbi10by1jZWxlYnJhdGUtc3QtcGF0cmlja3MtZGF5LWVhcmx5LXdpdGgtc3RyZWV0LXBhcmFkZS_SAQA?oc=5",
+                    "published": "Sat, 12 Mar 2022 19:22:10 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://fox8.com",
+                        "title": "WJW FOX 8 News Cleveland"
+                    }
+                },
+                {
+                    "id": "CBMiZGh0dHBzOi8vd3d3LndrYm4uY29tL25ld3MvbG9jYWwtbmV3cy9sb2NhbC1hdHRvcm5leS1maWxlcy1zdWl0LWFnYWluc3QtbWFuLXdoby1hdHRhY2tlZC1ha3Jvbi13b21hbi_SAWhodHRwczovL3d3dy53a2JuLmNvbS9uZXdzL2xvY2FsLW5ld3MvbG9jYWwtYXR0b3JuZXktZmlsZXMtc3VpdC1hZ2FpbnN0LW1hbi13aG8tYXR0YWNrZWQtYWtyb24td29tYW4vYW1wLw",
+                    "title": "Local attorney files suit against man who attacked Akron woman - WKBN.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiZGh0dHBzOi8vd3d3LndrYm4uY29tL25ld3MvbG9jYWwtbmV3cy9sb2NhbC1hdHRvcm5leS1maWxlcy1zdWl0LWFnYWluc3QtbWFuLXdoby1hdHRhY2tlZC1ha3Jvbi13b21hbi_SAWhodHRwczovL3d3dy53a2JuLmNvbS9uZXdzL2xvY2FsLW5ld3MvbG9jYWwtYXR0b3JuZXktZmlsZXMtc3VpdC1hZ2FpbnN0LW1hbi13aG8tYXR0YWNrZWQtYWtyb24td29tYW4vYW1wLw?oc=5",
+                    "published": "Mon, 14 Mar 2022 17:58:52 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.wkbn.com",
+                        "title": "WKBN.com"
+                    }
+                },
+                {
+                    "id": "CBMiigFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzL2xvY2FsLzIwMjIvMDMvMTcva2VlcC1ha3Jvbi1iZWF1dGlmdWwtbGl0dGVyLXRyYXNoLWNsZWFudXAtbW9udGgtYXByaWwtdm9sdW50ZWVyLW9oaW8vNzA0MDgwNDAwMS_SASxodHRwczovL2FtcC5iZWFjb25qb3VybmFsLmNvbS9hbXAvNzA0MDgwNDAwMQ",
+                    "title": "Akron has a litter problem. Keep Akron Beautiful needs help cleaning it up - Akron Beacon Journal",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiigFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzL2xvY2FsLzIwMjIvMDMvMTcva2VlcC1ha3Jvbi1iZWF1dGlmdWwtbGl0dGVyLXRyYXNoLWNsZWFudXAtbW9udGgtYXByaWwtdm9sdW50ZWVyLW9oaW8vNzA0MDgwNDAwMS_SASxodHRwczovL2FtcC5iZWFjb25qb3VybmFsLmNvbS9hbXAvNzA0MDgwNDAwMQ?oc=5",
+                    "published": "Thu, 17 Mar 2022 10:05:58 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.beaconjournal.com",
+                        "title": "Akron Beacon Journal"
+                    }
+                },
+                {
+                    "id": "CBMihwFodHRwczovL3d3dy5jbGV2ZWxhbmQxOS5jb20vMjAyMi8wMy8yMi9sZWJyb24tamFtZXMtZmFtaWx5LWZvdW5kYXRpb24tYWtyb24taW52aXRlcy1wdWJsaWMtc2VlLW5ldy1ob3VzZS10aHJlZS10aGlydHktbXVsdGktdXNlLWNlbnRlci_SAQA",
+                    "title": "LeBron James Family Foundation, Akron invites public to see new House Three Thirty multi-use center - Cleveland 19 News",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMihwFodHRwczovL3d3dy5jbGV2ZWxhbmQxOS5jb20vMjAyMi8wMy8yMi9sZWJyb24tamFtZXMtZmFtaWx5LWZvdW5kYXRpb24tYWtyb24taW52aXRlcy1wdWJsaWMtc2VlLW5ldy1ob3VzZS10aHJlZS10aGlydHktbXVsdGktdXNlLWNlbnRlci_SAQA?oc=5",
+                    "published": "Tue, 22 Mar 2022 16:04:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cleveland19.com",
+                        "title": "Cleveland 19 News"
+                    }
+                },
+                {
+                    "id": "CBMiXGh0dHBzOi8vd3d3LmNyYWluc2NsZXZlbGFuZC5jb20vcmVhbC1lc3RhdGUvZHJpdmVyZ2Utc2V0LW1vdmUtYWtyb25zLWZvcm1lci1jaGFwZWwtaGlsbC1tYWxs0gEA",
+                    "title": "Driverge set to move to Akron's former Chapel Hill Mall - Crain's Cleveland Business",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiXGh0dHBzOi8vd3d3LmNyYWluc2NsZXZlbGFuZC5jb20vcmVhbC1lc3RhdGUvZHJpdmVyZ2Utc2V0LW1vdmUtYWtyb25zLWZvcm1lci1jaGFwZWwtaGlsbC1tYWxs0gEA?oc=5",
+                    "published": "Sun, 06 Mar 2022 08:00:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.crainscleveland.com",
+                        "title": "Crain's Cleveland Business"
+                    }
+                },
+                {
+                    "id": "CBMihAFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzL2xvY2FsLzIwMjIvMDMvMTcvYWtyb24taW52ZXN0cy0xLTMtbWlsbGlvbi1vcmdhbml6YXRpb25zLWFkZHJlc3MteW91dGgtdmlvbGVuY2UvOTMzMDkxOTAwMi_SASxodHRwczovL2FtcC5iZWFjb25qb3VybmFsLmNvbS9hbXAvOTMzMDkxOTAwMg",
+                    "title": "‘The kids deserve to have the best‘: Akron invests $1.3 million in youth violence prevention - Akron Beacon Journal",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMihAFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzL2xvY2FsLzIwMjIvMDMvMTcvYWtyb24taW52ZXN0cy0xLTMtbWlsbGlvbi1vcmdhbml6YXRpb25zLWFkZHJlc3MteW91dGgtdmlvbGVuY2UvOTMzMDkxOTAwMi_SASxodHRwczovL2FtcC5iZWFjb25qb3VybmFsLmNvbS9hbXAvOTMzMDkxOTAwMg?oc=5",
+                    "published": "Thu, 17 Mar 2022 10:03:03 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.beaconjournal.com",
+                        "title": "Akron Beacon Journal"
+                    }
+                },
+                {
+                    "id": "CBMiYWh0dHBzOi8vbml1aHVza2llcy5jb20vbmV3cy8yMDIyLzMvMjAvYmFzZWJhbGwtaHVza2llcy1zcGxpdC1zZXJpZXMtYXQtYWtyb24tZmFsbC00LTItc3VuZGF5LmFzcHjSAQA",
+                    "title": "Huskies Split Series At Akron, Fall 4-2 Sunday - Northern Illinois University Athletics",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiYWh0dHBzOi8vbml1aHVza2llcy5jb20vbmV3cy8yMDIyLzMvMjAvYmFzZWJhbGwtaHVza2llcy1zcGxpdC1zZXJpZXMtYXQtYWtyb24tZmFsbC00LTItc3VuZGF5LmFzcHjSAQA?oc=5",
+                    "published": "Sun, 20 Mar 2022 19:47:42 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://niuhuskies.com",
+                        "title": "Northern Illinois University Athletics"
+                    }
+                },
+                {
+                    "id": "CBMigwFodHRwczovL3d3dy5jbGV2ZXNjZW5lLmNvbS9jbGV2ZWxhbmQvdG9tLXBldHR5LXRyaWJ1dGUtY29uY2VydC10by10YWtlLXBsYWNlLWluLW1heS1hdC1ha3JvbnMtZ29vZHllYXItdGhlYXRyZS9Db250ZW50P29pZD0zODU4ODIxNdIBkgFodHRwczovL3d3dy5jbGV2ZXNjZW5lLmNvbS9jbGV2ZWxhbmQvdG9tLXBldHR5LXRyaWJ1dGUtY29uY2VydC10by10YWtlLXBsYWNlLWluLW1heS1hdC1ha3JvbnMtZ29vZHllYXItdGhlYXRyZS9Db250ZW50P29pZD0zODU4ODIxNSZtZWRpYT1BTVArSFRNTA",
+                    "title": "Tom Petty Tribute Concert To Take Place in May at Akron's Goodyear Theatre - Cleveland Scene",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMigwFodHRwczovL3d3dy5jbGV2ZXNjZW5lLmNvbS9jbGV2ZWxhbmQvdG9tLXBldHR5LXRyaWJ1dGUtY29uY2VydC10by10YWtlLXBsYWNlLWluLW1heS1hdC1ha3JvbnMtZ29vZHllYXItdGhlYXRyZS9Db250ZW50P29pZD0zODU4ODIxNdIBkgFodHRwczovL3d3dy5jbGV2ZXNjZW5lLmNvbS9jbGV2ZWxhbmQvdG9tLXBldHR5LXRyaWJ1dGUtY29uY2VydC10by10YWtlLXBsYWNlLWluLW1heS1hdC1ha3JvbnMtZ29vZHllYXItdGhlYXRyZS9Db250ZW50P29pZD0zODU4ODIxNSZtZWRpYT1BTVArSFRNTA?oc=5",
+                    "published": "Tue, 22 Mar 2022 13:04:58 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.clevescene.com",
+                        "title": "Cleveland Scene"
+                    }
+                },
+                {
+                    "id": "CBMiowFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzLzIwMjIvMDMvMjEvZmlyZXN0b25lLXBhcmstcm9hZC1jbG9zZWQtd29yay05LW90aGVyLWFrcm9uLXN0cmVldHMtYmVnaW4td29vZHNkYWxlLXNld2VyLWpvaG5zb24tZGVsaWEtYXJsaW5ndG9uLzk0NTUyMzMwMDIv0gEsaHR0cHM6Ly9hbXAuYmVhY29uam91cm5hbC5jb20vYW1wLzk0NTUyMzMwMDI",
+                    "title": "Section of Firestone Park road closed; work on 9 other Akron streets to start this week - Akron Beacon Journal",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiowFodHRwczovL3d3dy5iZWFjb25qb3VybmFsLmNvbS9zdG9yeS9uZXdzLzIwMjIvMDMvMjEvZmlyZXN0b25lLXBhcmstcm9hZC1jbG9zZWQtd29yay05LW90aGVyLWFrcm9uLXN0cmVldHMtYmVnaW4td29vZHNkYWxlLXNld2VyLWpvaG5zb24tZGVsaWEtYXJsaW5ndG9uLzk0NTUyMzMwMDIv0gEsaHR0cHM6Ly9hbXAuYmVhY29uam91cm5hbC5jb20vYW1wLzk0NTUyMzMwMDI?oc=5",
+                    "published": "Mon, 21 Mar 2022 19:50:04 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.beaconjournal.com",
+                        "title": "Akron Beacon Journal"
+                    }
+                },
+                {
+                    "id": "CBMiWWh0dHBzOi8vY211Y2hpcHBld2FzLmNvbS9uZXdzLzIwMjIvMy8yMC9icml0dG9ucy0zLWhvbWVycy1sZWFkLXNvZnRiYWxsLXRvLXN3ZWVwLW9mLWFrcm9u0gEA",
+                    "title": "Britton's 3 Homers Lead Softball To Sweep Of Akron - Central Michigan University Chippewas",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiWWh0dHBzOi8vY211Y2hpcHBld2FzLmNvbS9uZXdzLzIwMjIvMy8yMC9icml0dG9ucy0zLWhvbWVycy1sZWFkLXNvZnRiYWxsLXRvLXN3ZWVwLW9mLWFrcm9u0gEA?oc=5",
+                    "published": "Mon, 21 Mar 2022 02:48:45 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://cmuchippewas.com",
+                        "title": "Central Michigan University Chippewas"
+                    }
+                },
+                {
+                    "id": "CBMiS2h0dHBzOi8vd3d3LmxlZ2FjeS5jb20vdXMvb2JpdHVhcmllcy9uYW1lL2xlb25hLWZhcnJpcy1vYml0dWFyeT9pZD0zMzQ4NjU1M9IBAA",
+                    "title": "Leona Farris Obituary (1917 - 2022) - Akron, OH - Legacy.com",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiS2h0dHBzOi8vd3d3LmxlZ2FjeS5jb20vdXMvb2JpdHVhcmllcy9uYW1lL2xlb25hLWZhcnJpcy1vYml0dWFyeT9pZD0zMzQ4NjU1M9IBAA?oc=5",
+                    "published": "Sun, 27 Feb 2022 08:00:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.legacy.com",
+                        "title": "Legacy.com"
+                    }
+                },
+                {
+                    "id": "CAIiEL3umekcOylgqNFosdO7uEwqFggEKg4IACoGCAow5tYTMODEAjCyuwQ",
+                    "title": "LeBron James museum in his hometown of Akron, Ohio will open in 2023 - CBS Sports",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMiZ2h0dHBzOi8vd3d3LmNic3Nwb3J0cy5jb20vbmJhL25ld3MvbGVicm9uLWphbWVzLW11c2V1bS1pbi1oaXMtaG9tZXRvd24tb2YtYWtyb24tb2hpby13aWxsLW9wZW4taW4tMjAyMy_SAQA?oc=5",
+                    "published": "Fri, 25 Feb 2022 08:00:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://www.cbssports.com",
+                        "title": "CBS Sports"
+                    }
+                },
+                {
+                    "id": "CBMia2h0dHBzOi8vZ29iZWFyY2F0cy5jb20vbmV3cy8yMDIyLzMvMy93b21lbnMtbGFjcm9zc2UtbGFjcm9zc2Utc2V0LWZvci1yb2FkLXdlZWtlbmQtYXQta2VudC1zdGF0ZS1ha3Jvbi5hc3B40gEA",
+                    "title": "Lacrosse Set for Road Weekend at Kent State, Akron - University of Cincinnati Athletics",
+                    "link": "https://news.google.com/__i/rss/rd/articles/CBMia2h0dHBzOi8vZ29iZWFyY2F0cy5jb20vbmV3cy8yMDIyLzMvMy93b21lbnMtbGFjcm9zc2UtbGFjcm9zc2Utc2V0LWZvci1yb2FkLXdlZWtlbmQtYXQta2VudC1zdGF0ZS1ha3Jvbi5hc3B40gEA?oc=5",
+                    "published": "Thu, 03 Mar 2022 08:00:00 GMT",
+                    "sub_articles": [],
+                    "source": {
+                        "href": "https://gobearcats.com",
+                        "title": "University of Cincinnati Athletics"
+                    }
+                }
+            ]
+        }
+        
+        var dummyWeatherData = {
+            "location": {
+                "city": "Seattle",
+                "region": " WA",
+                "woeid": 2490383,
+                "country": "United States",
+                "lat": 47.603561,
+                "long": -122.329437,
+                "timezone_id": "America/Los_Angeles"
+            },
+            "current_observation": {
+                "wind": {
+                    "chill": 54,
+                    "direction": 190,
+                    "speed": 6
+                },
+                "atmosphere": {
+                    "humidity": 53,
+                    "visibility": 10,
+                    "pressure": 30.03,
+                    "rising": 0
+                },
+                "astronomy": {
+                    "sunrise": "5:59 am",
+                    "sunset": "8:16 pm"
+                },
+                "condition": {
+                    "code": 30,
+                    "text": "Partly Cloudy",
+                    "temperature": 55
+                },
+                "pubDate": 1651074300
+            },
+            "forecasts": [
+                {
+                    "day": "Wed",
+                    "date": 1651028400,
+                    "low": 41,
+                    "high": 55,
+                    "text": "Rain",
+                    "code": 12
+                },
+                {
+                    "day": "Thu",
+                    "date": 1651114800,
+                    "low": 42,
+                    "high": 54,
+                    "text": "Cloudy",
+                    "code": 26
+                },
+                {
+                    "day": "Fri",
+                    "date": 1651201200,
+                    "low": 44,
+                    "high": 59,
+                    "text": "Mostly Cloudy",
+                    "code": 28
+                },
+                {
+                    "day": "Sat",
+                    "date": 1651287600,
+                    "low": 49,
+                    "high": 57,
+                    "text": "Rain",
+                    "code": 12
+                },
+                {
+                    "day": "Sun",
+                    "date": 1651374000,
+                    "low": 48,
+                    "high": 60,
+                    "text": "Mostly Cloudy",
+                    "code": 28
+                },
+                {
+                    "day": "Mon",
+                    "date": 1651460400,
+                    "low": 48,
+                    "high": 54,
+                    "text": "Showers",
+                    "code": 11
+                },
+                {
+                    "day": "Tue",
+                    "date": 1651546800,
+                    "low": 46,
+                    "high": 56,
+                    "text": "Cloudy",
+                    "code": 26
+                },
+                {
+                    "day": "Wed",
+                    "date": 1651633200,
+                    "low": 47,
+                    "high": 61,
+                    "text": "Rain",
+                    "code": 12
+                },
+                {
+                    "day": "Thu",
+                    "date": 1651719600,
+                    "low": 48,
+                    "high": 58,
+                    "text": "Scattered Showers",
+                    "code": 39
+                },
+                {
+                    "day": "Fri",
+                    "date": 1651806000,
+                    "low": 47,
+                    "high": 58,
+                    "text": "Mostly Cloudy",
+                    "code": 28
+                },
+                {
+                    "day": "Sat",
+                    "date": 1651892400,
+                    "low": 47,
+                    "high": 57,
+                    "text": "Rain",
+                    "code": 12
+                }
+            ]
+        }
+
+        function fetchWeatherData() {
+            let url = `https://yahoo-weather5.p.rapidapi.com/weather?location=${cityName}&format=json&u=f`
+            fetch(url, {
+                "method": "GET",
+                "headers": {
+                    "x-rapidapi-host": "yahoo-weather5.p.rapidapi.com",
+                    "x-rapidapi-key": "c255c04533msh2ffbe56a5ec8394p11e83bjsn60c13d3659ab"
+                }
+            })
+            .then(response => {
+                if(!response.ok){
+                    throw Error("Unable to fetch weather data");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                buildWeatherDataUI(data);
+            })	
+            .catch(error => {
+                console.error(error);
+            })
+
+            // if dummy data
+            //buildWeatherDataUI(dummyWeatherData);
+        }
+        
+        function buildWeatherDataUI(weatherData) {
+            console.log(weatherData);
+            let cardUI = `
+                <div class="card" style="width: 15rem;">
+                    <img class="card-img-top img-fluid" src="weather3Icon.png" width="80" height="80" alt="Today's weather!">
+                    <div class="card-body">
+                        <h5 class="card-title">${weatherData.location.city} Weather</h5>
+                        <p class="card-text">
+                        </p>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"> It's - ${weatherData.current_observation.condition.text}</li>
+                        <li class="list-group-item"> Temperature : ${weatherData.current_observation.condition.temperature} &#8457</li>
+                        <li class="list-group-item">Wind speed : ${weatherData.current_observation.wind.speed} mph</li>
+                    </ul>                
+                </div>
+            `;
+
+            document.querySelector("#weatherData").innerHTML = cardUI;
+        }
+
+        function fetchNewsData() {
+            console.log('Fetching Geographic Headlines');
+            const options = {
+                method: 'GET',
+                headers: {
+                    'X-RapidAPI-Host': 'google-news.p.rapidapi.com',
+                    'X-RapidAPI-Key': 'c255c04533msh2ffbe56a5ec8394p11e83bjsn60c13d3659ab'
+                }
+            };
+
+            let url = `https://google-news.p.rapidapi.com/v1/geo_headlines?lang=us&country=US&geo=${cityName}`;
+            fetch(url, options)
+                .then(response => response.json())
+                .then(response => {
+                    console.log(response);
+                    buildNewsDataUI(response);
+                })
+                .catch(err => console.error(err));
+
+            //if dummy data
+            //buildNewsDataUI(dummyNewsData);
+        }
+
+        function buildNewsDataUI(newsData) {
+            let newsCardUI = ``;
+            newsData.articles.forEach(article => {
+                newsCardUI +=
+                `
+                    <div class="card" style="width: 30rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">${article.title}</h5>
+                            <a href="${article.link}" class="btn btn-primary">Go to news article</a>
+                            <div padding: 50px 60px>
+                                <p class="card-text">${article.published}</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            });
+            document.querySelector("#newsData").innerHTML = newsCardUI;
+        }
+
+        function fetchNearByParksData() {
+            const options = {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Host': 'nearby-places.p.rapidapi.com',
+                'X-RapidAPI-Key': 'c255c04533msh2ffbe56a5ec8394p11e83bjsn60c13d3659ab'
+            }
+            };
+            var location=getLocation(cityName);
+            let url=`https://nearby-places.p.rapidapi.com/v2/nearby?lat=${location.lat}&lng=${location.long}&type=park&radius=10000`
+            fetch(url, options)
+            .then(response => response.json())
+            .then(response => {
+                console.log(response);
+                nearByDataUI(response);
+            })
+            .catch(err => console.error(err));
+
+            //if dummy data
+            //nearByDataUI(dummyNearByData);
+        }
+
+        function nearByDataUI(nearByData) {
+            let nearByUI = ``;
+            nearByData.results.forEach(near => {
+                nearByUI += 
+                `
+                    <div class="card text-dark bg-light mb-3" style="max-width: 18rem;">
+                        <div class="card-header">${near.name}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Address : ${near.address}</p>
+                        </div>
+                    </div> 
+                `
+            })
+            document.querySelector("#nearByData").innerHTML = nearByUI;
+        }
+
+        function getLocation(cityName) {
+            if (cityName === 'akron'){
+                return {
+                    lat: 41.0814447,
+                    long: -81.5190053
+                };
+            } else if (cityName === 'seattle') {
+                return {
+                    lat: 47.6062,
+                    long: -122.3321
+                };
+            } else {
+                return {
+                    lat: 39.854938,
+                    long: -104.9903
+                };
+            }
+        }
+
+    </script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" href="#">MyCityNews</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="new.html">Home <span class="sr-only">(current)</span></a>
+                </li>
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    City
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="city.html?city=akron">Akron, OH</a>
+                    <a class="dropdown-item" href="city.html?city=seattle">Seattle, WA</a>
+                    <a class="dropdown-item" href="city.html?city=denver">Denver, CO</a>
+                    </div>
+                </li>			
+			</ul>
+		</div>
+	</nav>
+
+    <div class="container main-content">
+        <div class="row">
+            <!-- Weather Data -->
+            <div class="col-sm-3" id="weatherData">
+                
+            </div>
+
+            <!-- News -->
+            <div class="col-sm-6" id="newsData">
+                <!-- <div class="col-sm-3" id="newsData"></div> -->
+            </div>
+
+            <!-- Near by parks -->
+            <div class="col-sm-3" id="nearByData">
+
+            </div>
+          </div>
+    </div>
+    
+
+    
+  </body>
+</html>
